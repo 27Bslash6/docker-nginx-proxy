@@ -1,0 +1,45 @@
+# https://registry.hub.docker.com/u/jwilder/nginx-proxy/
+
+## SSL Support
+#
+# SSL is supported using single host, wildcard and SNI certificates using naming conventions for certificates or optionally 
+# specifying a cert name (for SNI) as an environment variable.
+
+## To enable SSL:
+#
+# The contents of the /etc/nginx/certs volume should contain the certificates and private keys for any virtual hosts in use. 
+# The certificate and keys should be named after the virtual host with a .crt and .key extension. 
+# For example, a container with VIRTUAL_HOST=foo.bar.com should have a foo.bar.com.crt and foo.bar.com.key file in the certs directory.
+
+##  Diffie-Hellman Groups
+#
+# If you have Diffie-Hellman groups enabled, the files should be named after the virtual host with a dhparam suffix and .pem extension. 
+# For example, a container with VIRTUAL_HOST=foo.bar.com should have a foo.bar.com.dhparam.pem file in the certs directory.
+
+## Wildcard Certificates
+#
+# Wildcard certificates and keys should be name after the domain name with a .crt and .key extension. 
+# For example VIRTUAL_HOST=foo.bar.com would use cert name bar.com.crt and bar.com.key.
+
+# SNI
+#
+# If your certificate(s) supports multiple domain names, you can start a container with CERT_NAME=<name> to identify the certificate to be used. 
+# For example, a certificate for *.foo.com and *.bar.com could be named shared.crt and shared.key. 
+# A container running with VIRTUAL_HOST=foo.bar.com and CERT_NAME=shared will then use this shared cert.
+
+# Basic Authentication Support
+# In order to be able to secure your virtual host, you have to create a file named as its equivalent VIRTUAL_HOST variable
+# on directory /etc/nginx/htpasswd/$VIRTUAL_HOST
+
+nginxproxy:
+  image: jwilder/nginx-proxy
+  restart: always
+  volumes:
+    - /etc/nginx/ssl:/etc/nginx/certs:ro
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - /home/fish/projects/docker/nginx_proxy/htpasswd:/etc/nginx/htpasswd
+    - /home/fish/projects/docker/nginx_proxy/vhost.d:/etc/nginx/vhost.d:ro
+    - /home/fish/projects/docker/nginx_proxy/conf.d:/etc/nginx/conf.d
+  ports:
+    - "80:80"
+    - "443:443"
